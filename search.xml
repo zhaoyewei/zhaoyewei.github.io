@@ -4,6 +4,68 @@
   
     
     <entry>
+      <title>528-按权重随机选择</title>
+      <link href="/2021/08/30/528-%E6%8C%89%E6%9D%83%E9%87%8D%E9%9A%8F%E6%9C%BA%E9%80%89%E6%8B%A9/"/>
+      <url>/2021/08/30/528-%E6%8C%89%E6%9D%83%E9%87%8D%E9%9A%8F%E6%9C%BA%E9%80%89%E6%8B%A9/</url>
+      
+        <content type="html"><![CDATA[<h4 id="528-按权重随机选择"><a href="#528-按权重随机选择" class="headerlink" title="528. 按权重随机选择"></a><a href="https://leetcode-cn.com/problems/random-pick-with-weight/">528. 按权重随机选择</a></h4><p>给定一个正整数数组 <code>w</code> ，其中 <code>w[i]</code> 代</p><p>表下标 <code>i</code> 的权重（下标从 <code>0</code> 开始），请写一个函数 <code>pickIndex</code> ，它可以随机地获取下标 <code>i</code>，选取下标 <code>i</code> 的概率与 <code>w[i]</code> 成正比。</p><p>例如，对于 <code>w = [1, 3]</code>，挑选下标 <code>0</code> 的概率为 <code>1 / (1 + 3) = 0.25</code> （即，25%），而选取下标 <code>1</code> 的概率为 <code>3 / (1 + 3) = 0.75</code>（即，75%）。</p><p>也就是说，选取下标 <code>i</code> 的概率为 <code>w[i] / sum(w)</code> 。</p><p><strong>示例 1：</strong></p><p><strong>输入：</strong><br>        [“Solution”,”pickIndex”]<br>        [[[1]],[]]<br>        <strong>输出：</strong><br>        [null,0]<br>        <strong>解释：</strong><br>        Solution solution = new Solution([1]);<br>        solution.pickIndex(); // 返回 0，因为数组中只有一个元素，所以唯一的选择是返回下标 0。</p><p><strong>示例 2：</strong>    </p><p><strong>输入：</strong><br>        [“Solution”,”pickIndex”,”pickIndex”,”pickIndex”,”pickIndex”,”pickIndex”]<br>        [[[1,3]],[],[],[],[],[]]<br>        <strong>输出：</strong><br>        [null,1,1,1,1,0]<br>        <strong>解释：</strong><br>        Solution solution = new Solution([1, 3]);<br>        solution.pickIndex(); // 返回 1，返回下标 1，返回该下标概率为 3/4 。<br>        solution.pickIndex(); // 返回 1<br>        solution.pickIndex(); // 返回 1<br>        solution.pickIndex(); // 返回 1<br>        solution.pickIndex(); // 返回 0，返回下标 0，返回该下标概率为 1/4 。**</p><p>由于这是一个随机问题，允许多个答案，因此下列输出都可以被认为是正确的:<br>        [null,1,1,1,1,0]<br>        [null,1,1,1,1,1]<br>        [null,1,1,1,0,0]<br>        [null,1,1,1,0,1]<br>        [null,1,0,1,0,0]<br>        ……<br>        诸若此类。</p><p><strong>提示：</strong></p><ul><li><code>1 &lt;= w.length &lt;= 10000</code></li><li><code>1 &lt;= w[i] &lt;= 10^5</code></li><li><code>pickIndex</code> 将被调用不超过 <code>10000</code> 次</li></ul><h1 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h1><p>随机+二分查找</p><h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    vector&lt;<span class="keyword">int</span>&gt; presum;</span><br><span class="line">    <span class="built_in">Solution</span>(vector&lt;<span class="keyword">int</span>&gt;&amp; w) &#123;</span><br><span class="line">        presum.<span class="built_in">resize</span>(w.<span class="built_in">size</span>()+<span class="number">1</span>,<span class="number">0</span>);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=w.<span class="built_in">size</span>();i++) presum[i] = presum[i<span class="number">-1</span>]+w[i<span class="number">-1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">pickIndex</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> rnum = <span class="built_in">rand</span>()%presum.<span class="built_in">back</span>()+<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> left = <span class="number">1</span>, right = presum.<span class="built_in">size</span>()<span class="number">-1</span>,mid;</span><br><span class="line">        <span class="keyword">while</span>(left&lt;right)&#123;</span><br><span class="line">            mid=(left+right)/<span class="number">2</span>;</span><br><span class="line">            <span class="keyword">if</span>(presum[mid]&gt;=rnum) right=mid;</span><br><span class="line">            <span class="keyword">else</span> left=mid+<span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> right<span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> 算法 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 算法 </tag>
+            
+            <tag> leetcode </tag>
+            
+            <tag> 数组 </tag>
+            
+            <tag> 随机 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>927-三等分</title>
+      <link href="/2021/08/30/927-%E4%B8%89%E7%AD%89%E5%88%86/"/>
+      <url>/2021/08/30/927-%E4%B8%89%E7%AD%89%E5%88%86/</url>
+      
+        <content type="html"><![CDATA[<h1 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h1><p>链接：<a href="https://leetcode-cn.com/problems/three-equal-parts">https://leetcode-cn.com/problems/three-equal-parts</a></p><p>给定一个由 0 和 1 组成的数组 A，将数组分成 3 个非空的部分，使得所有这些部分表示相同的二进制值。</p><p>如果可以做到，请返回任何 [i, j]，其中 i+1 &lt; j，这样一来：</p><p>A[0], A[1], …, A[i] 组成第一部分；<br>        A[i+1], A[i+2], …, A[j-1] 作为第二部分；<br>        A[j], A[j+1], …, A[A.length - 1] 是第三部分。<br>        这三个部分所表示的二进制值相等。<br>        如果无法做到，就返回 [-1, -1]。</p><p>注意，在考虑每个部分所表示的二进制时，应当将其看作一个整体。例如，[1,1,0] 表示十进制中的 6，而不会是 3。此外，前导零也是被允许的，所以 [0,1,1] 和 [1,1] 表示相同的值。</p><h2 id="示例-1："><a href="#示例-1：" class="headerlink" title="示例 1："></a>示例 1：</h2><p>输入：[1,0,1,0,1]<br>        输出：[0,3]</p><pre><code>    ## 示例 2：</code></pre><p>输出：[1,1,0,1,1]<br>        输出：[-1,-1]</p><h2 id="提示："><a href="#提示：" class="headerlink" title="提示："></a>提示：</h2><p>3 &lt;= A.length &lt;= 30000<br>        A[i] == 0 或 A[i] == 1</p><h1 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h1><p>每组1的数目肯定相等。于是先统计1的位置并保存为bit，之后看bit的长度是否大于3、是否能被3整除。</p><p>能被3整除的情况下，分成三分，每份为<code>t</code>。每一份中1肯定都是t个，前缀0可以忽略，因此应该看后缀0有多少。前两份的前缀0和后面的后缀0混合在一起，可以自由组合，因此先不看。只看第3份的后缀0。如果第3份的后缀0个数比前两份之间的都多，也是不行的。在第三分的后缀0个数小于1、2和2、3之间的0的个数的时候，分别从第1份最后一个1后面延伸相应个数的0、第2份最后一个1后面延伸相应个数的0，返回位置即为答案。</p><h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">vector&lt;<span class="keyword">int</span>&gt; <span class="title">threeEqualParts</span><span class="params">(vector&lt;<span class="keyword">int</span>&gt;&amp; arr)</span> </span>&#123;</span><br><span class="line">        vector&lt;<span class="keyword">int</span>&gt; bit;</span><br><span class="line">        <span class="keyword">int</span> len = arr.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;arr.<span class="built_in">size</span>();i++)</span><br><span class="line">        <span class="keyword">if</span>(arr[i]==<span class="number">1</span>)</span><br><span class="line">        bit.<span class="built_in">push_back</span>(i);</span><br><span class="line">        <span class="keyword">if</span>(bit.<span class="built_in">size</span>()%<span class="number">3</span>) <span class="keyword">return</span> &#123;<span class="number">-1</span>,<span class="number">-1</span>&#125;;</span><br><span class="line">        <span class="keyword">if</span>(bit.<span class="built_in">empty</span>()) <span class="keyword">return</span> &#123;<span class="number">0</span>,<span class="number">2</span>&#125;;</span><br><span class="line">        <span class="keyword">int</span> t = bit.<span class="built_in">size</span>()/<span class="number">3</span>;</span><br><span class="line">        <span class="keyword">int</span> back_zero = len - <span class="number">1</span> - bit.<span class="built_in">back</span>();</span><br><span class="line">        <span class="keyword">if</span>(back_zero&gt;bit[<span class="number">2</span>*t]-bit[<span class="number">2</span>*t<span class="number">-1</span>]<span class="number">-1</span>||back_zero&gt;bit[t]-bit[t<span class="number">-1</span>]<span class="number">-1</span>)</span><br><span class="line">        <span class="keyword">return</span> &#123;<span class="number">-1</span>,<span class="number">-1</span>&#125;;</span><br><span class="line">        <span class="function">vector&lt;<span class="keyword">int</span>&gt; <span class="title">first</span><span class="params">(bit.begin(),bit.begin()+t)</span></span>;</span><br><span class="line">        <span class="function">vector&lt;<span class="keyword">int</span>&gt; <span class="title">second</span><span class="params">(bit.begin()+t,bit.begin()+<span class="number">2</span>*t)</span></span>;</span><br><span class="line">        <span class="function">vector&lt;<span class="keyword">int</span>&gt; <span class="title">third</span><span class="params">(bit.begin()+<span class="number">2</span>*t,bit.end())</span></span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=t<span class="number">-1</span>;i&gt;<span class="number">0</span>;--i)&#123;</span><br><span class="line">            <span class="keyword">if</span>(first[i]-first[i<span class="number">-1</span>]!=second[i]-second[i<span class="number">-1</span>]||</span><br><span class="line">            first[i]-first[i<span class="number">-1</span>]!=third[i]-third[i<span class="number">-1</span>]) </span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="number">-1</span>,<span class="number">-1</span>&#125;;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> i = bit[t<span class="number">-1</span>]+back_zero;</span><br><span class="line">        <span class="keyword">int</span> j = bit[<span class="number">2</span>*t<span class="number">-1</span>]+back_zero+<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span> &#123;i,j&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> 算法 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 算法 </tag>
+            
+            <tag> leetcode </tag>
+            
+            <tag> 数组 </tag>
+            
+            <tag> 贪心 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>1588-所有奇数长度子数组的和</title>
       <link href="/2021/08/29/1588-%E6%89%80%E6%9C%89%E5%A5%87%E6%95%B0%E9%95%BF%E5%BA%A6%E5%AD%90%E6%95%B0%E7%BB%84%E7%9A%84%E5%92%8C/"/>
       <url>/2021/08/29/1588-%E6%89%80%E6%9C%89%E5%A5%87%E6%95%B0%E9%95%BF%E5%BA%A6%E5%AD%90%E6%95%B0%E7%BB%84%E7%9A%84%E5%92%8C/</url>
