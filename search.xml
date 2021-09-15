@@ -4,6 +4,122 @@
   
     
     <entry>
+      <title>380.时间插入、删除和获取随机元素</title>
+      <link href="/2021/09/15/380-%E6%97%B6%E9%97%B4%E6%8F%92%E5%85%A5%E3%80%81%E5%88%A0%E9%99%A4%E5%92%8C%E8%8E%B7%E5%8F%96%E9%9A%8F%E6%9C%BA%E5%85%83%E7%B4%A0/"/>
+      <url>/2021/09/15/380-%E6%97%B6%E9%97%B4%E6%8F%92%E5%85%A5%E3%80%81%E5%88%A0%E9%99%A4%E5%92%8C%E8%8E%B7%E5%8F%96%E9%9A%8F%E6%9C%BA%E5%85%83%E7%B4%A0/</url>
+      
+        <content type="html"><![CDATA[<h1 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h1><p>实现<code>RandomizedSet</code> 类：</p><ul><li><code>RandomizedSet()</code> 初始化 <code>RandomizedSet</code> 对象</li><li><code>bool insert(int val)</code> 当元素 <code>val</code> 不存在时，向集合中插入该项，并返回 <code>true</code> ；否则，返回 <code>false</code> 。</li><li><code>bool remove(int val)</code> 当元素 <code>val</code> 存在时，从集合中移除该项，并返回 <code>true</code> ；否则，返回 <code>false</code> 。</li><li><code>int getRandom()</code> 随机返回现有集合中的一项（测试用例保证调用此方法时集合中至少存在一个元素）。每个元素应该有 <strong>相同的概率</strong> 被返回。</li></ul><p>你必须实现类的所有函数，并满足每个函数的 <strong>平均</strong> 时间复杂度为 <code>O(1)</code> 。</p><p><strong>示例：</strong></p><p><strong>输入</strong><br>[“RandomizedSet”, “insert”, “remove”, “insert”, “getRandom”, “remove”, “insert”, “getRandom”]<br>[[], [1], [2], [2], [], [1], [2], []]<br><strong>输出</strong><br>[null, true, false, true, 2, true, false, 2]</p><p><strong>解释</strong><br>RandomizedSet randomizedSet = new RandomizedSet();<br>randomizedSet.insert(1); // 向集合中插入 1 。返回 true 表示 1 被成功地插入。<br>randomizedSet.remove(2); // 返回 false ，表示集合中不存在 2 。<br>randomizedSet.insert(2); // 向集合中插入 2 。返回 true 。集合现在包含 [1,2] 。<br>randomizedSet.getRandom(); // getRandom 应随机返回 1 或 2 。<br>randomizedSet.remove(1); // 从集合中移除 1 ，返回 true 。集合现在包含 [2] 。<br>randomizedSet.insert(2); // 2 已在集合中，所以返回 false 。<br>randomizedSet.getRandom(); // 由于 2 是集合中唯一的数字，getRandom 总是返回 2 。</p><p><strong>提示：</strong></p><ul><li><code>-231 &lt;= val &lt;= 231 - 1</code></li><li>最多调用 <code>insert</code>、<code>remove</code> 和 <code>getRandom</code> 函数 <code>2 * ``105</code> 次</li><li>在调用 <code>getRandom</code> 方法时，数据结构中 <strong>至少存在一个</strong> 元素。<h1 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h1>一个vector保存所有的key。一个map保存key和在vector中对应的下标。<br>插入：在vector中加入该值，在map中加入&lt;该值，下标&gt;<br>随机获得：生成随机数在vector中获取一个。<br>删除：<br>vector最后一个元素key放到val的位置上：vector的val对应的位置设置为key，哈希表的key键对应的位置设置为val的值，之后分别删除vector的最后一个元素和哈希表的val元素即可。<h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RandomizedSet</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">/** Initialize your data structure here. */</span></span><br><span class="line">    unordered_map&lt;<span class="keyword">int</span>,<span class="keyword">int</span>&gt; m;</span><br><span class="line">    vector&lt;<span class="keyword">int</span>&gt; keys;</span><br><span class="line">    <span class="built_in">RandomizedSet</span>() &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Inserts a value to the set. Returns true if the set did not already contain the specified element. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">insert</span><span class="params">(<span class="keyword">int</span> val)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(m.<span class="built_in">find</span>(val)!=m.<span class="built_in">end</span>()) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        keys.<span class="built_in">push_back</span>(val);</span><br><span class="line">        m[val] = keys.<span class="built_in">size</span>()<span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Removes a value from the set. Returns true if the set contained the specified element. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">remove</span><span class="params">(<span class="keyword">int</span> val)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(m.<span class="built_in">find</span>(val)==m.<span class="built_in">end</span>()) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">int</span> temp = keys[keys.<span class="built_in">size</span>()<span class="number">-1</span>];</span><br><span class="line">        m[temp] = m[val];</span><br><span class="line">        keys[m[temp]] = temp;</span><br><span class="line">        keys.<span class="built_in">pop_back</span>();</span><br><span class="line">        m.<span class="built_in">erase</span>(val);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Get a random element from the set. */</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getRandom</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> keys[<span class="built_in">rand</span>()%keys.<span class="built_in">size</span>()];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Your RandomizedSet object will be instantiated and called as such:</span></span><br><span class="line"><span class="comment"> * RandomizedSet* obj = new RandomizedSet();</span></span><br><span class="line"><span class="comment"> * bool param_1 = obj-&gt;insert(val);</span></span><br><span class="line"><span class="comment"> * bool param_2 = obj-&gt;remove(val);</span></span><br><span class="line"><span class="comment"> * int param_3 = obj-&gt;getRandom();</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> 算法 </category>
+          
+          <category> 设计 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 算法 </tag>
+            
+            <tag> leetcode </tag>
+            
+            <tag> 力扣中等 </tag>
+            
+            <tag> 哈希表 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>381.时间插入、删除和获取随机元素-允许重复</title>
+      <link href="/2021/09/15/381-%E6%97%B6%E9%97%B4%E6%8F%92%E5%85%A5%E3%80%81%E5%88%A0%E9%99%A4%E5%92%8C%E8%8E%B7%E5%8F%96%E9%9A%8F%E6%9C%BA%E5%85%83%E7%B4%A0-%E5%85%81%E8%AE%B8%E9%87%8D%E5%A4%8D/"/>
+      <url>/2021/09/15/381-%E6%97%B6%E9%97%B4%E6%8F%92%E5%85%A5%E3%80%81%E5%88%A0%E9%99%A4%E5%92%8C%E8%8E%B7%E5%8F%96%E9%9A%8F%E6%9C%BA%E5%85%83%E7%B4%A0-%E5%85%81%E8%AE%B8%E9%87%8D%E5%A4%8D/</url>
+      
+        <content type="html"><![CDATA[<h1 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h1><p>设计一个支持在<em>平均 </em>时间复杂度 <strong>O(1) </strong>下<strong>， </strong>执行以下操作的数据结构。</p><p><strong>注意: 允许出现重复元素。</strong></p><ol><li><code>insert(val)</code>：向集合中插入元素 val。</li><li><code>remove(val)</code>：当 val 存在时，从集合中移除一个 val。</li><li><code>getRandom</code>：从现有集合中随机获取一个元素。每个元素被返回的概率应该与其在集合中的数量呈线性相关。</li></ol><p><strong>示例:</strong></p><p>// 初始化一个空的集合。<br>RandomizedCollection collection = new RandomizedCollection();</p><p>// 向集合中插入 1 。返回 true 表示集合不包含 1 。<br>collection.insert(1);</p><p>// 向集合中插入另一个 1 。返回 false 表示集合包含 1 。集合现在包含 [1,1] 。<br>collection.insert(1);</p><p>// 向集合中插入 2 ，返回 true 。集合现在包含 [1,1,2] 。<br>collection.insert(2);</p><p>// getRandom 应当有 2/3 的概率返回 1 ，1/3 的概率返回 2 。<br>collection.getRandom();</p><p>// 从集合中删除 1 ，返回 true 。集合现在包含 [1,2] 。<br>collection.remove(1);</p><p>// getRandom 应有相同概率返回 1 和 2 。<br>collection.getRandom();</p><h1 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h1><p>用一个vector保存所有的键。<br>用一个哈希表保存键和对应的在vector的下标。<br>插入：在键对应的下标中加入一个<br>随机获得：生成随机数在vector中获取一个。<br>删除：<br>将vector最后一个元素key取出来，key对应的下标end也取出来。<br>首先把要删除val的元素在vector中的一个位置idx赋给key，之后在哈希表key的下标中删除end，添加上val的下标idx。从val的下标中删除idx即可。<br>**这里不太明白的事为什么要有<code>if(idx&lt;end) m[keys[idx]].emplace(idx)</code>一句，如果这句换了位置就不对了，一直没明白`</p><h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RandomizedCollection</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    unordered_map&lt;<span class="keyword">int</span>,unordered_set&lt;<span class="keyword">int</span>&gt;&gt; m;</span><br><span class="line">    vector&lt;<span class="keyword">int</span>&gt; keys;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** Initialize your data structure here. */</span></span><br><span class="line">    <span class="built_in">RandomizedCollection</span>() &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Inserts a value to the collection. Returns true if the collection did not already contain the specified element. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">insert</span><span class="params">(<span class="keyword">int</span> val)</span> </span>&#123;</span><br><span class="line">        keys.<span class="built_in">push_back</span>(val);</span><br><span class="line">        <span class="keyword">if</span>(m.<span class="built_in">find</span>(val)==m.<span class="built_in">end</span>())&#123;</span><br><span class="line">            m[val].<span class="built_in">emplace</span>(<span class="built_in"><span class="keyword">int</span></span>(keys.<span class="built_in">size</span>()<span class="number">-1</span>));</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            m[val].<span class="built_in">emplace</span>(<span class="built_in"><span class="keyword">int</span></span>(keys.<span class="built_in">size</span>()<span class="number">-1</span>));</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Removes a value from the collection. Returns true if the collection contained the specified element. */</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">remove</span><span class="params">(<span class="keyword">int</span> val)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(m.<span class="built_in">find</span>(val)==m.<span class="built_in">end</span>()) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        <span class="comment">//取得最后一个key对应的下标end，要删除的元素所有下标的第一个        </span></span><br><span class="line">        <span class="keyword">int</span> end = keys.<span class="built_in">size</span>() - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> idx = *m[val].<span class="built_in">begin</span>();</span><br><span class="line">        <span class="comment">//最后一个key赋值到要删除的位置上，并且最后一个key要删除end这个下标。</span></span><br><span class="line">        keys[idx] = keys.<span class="built_in">back</span>();</span><br><span class="line">        m[keys[idx]].<span class="built_in">erase</span>(end);</span><br><span class="line">        <span class="comment">//要删除的元素删除一个下标，如果是最后一个，就把元素从哈细表中删除。</span></span><br><span class="line">        m[val].<span class="built_in">erase</span>(idx);</span><br><span class="line">        <span class="keyword">if</span>(m[val].<span class="built_in">empty</span>()) m.<span class="built_in">erase</span>(val);</span><br><span class="line">        <span class="comment">//如果删除元素的下标不是最后一个，就把删除的下标赋给原来最后一个key。</span></span><br><span class="line">        <span class="keyword">if</span>(idx&lt;end) m[keys[idx]].<span class="built_in">emplace</span>(idx);</span><br><span class="line"></span><br><span class="line">        keys.<span class="built_in">pop_back</span>();</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/** Get a random element from the collection. */</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getRandom</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> keys[<span class="built_in">rand</span>()%keys.<span class="built_in">size</span>()];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Your RandomizedCollection object will be instantiated and called as such:</span></span><br><span class="line"><span class="comment"> * RandomizedCollection* obj = new RandomizedCollection();</span></span><br><span class="line"><span class="comment"> * bool param_1 = obj-&gt;insert(val);</span></span><br><span class="line"><span class="comment"> * bool param_2 = obj-&gt;remove(val);</span></span><br><span class="line"><span class="comment"> * int param_3 = obj-&gt;getRandom();</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> 算法 </category>
+          
+          <category> 设计 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 算法 </tag>
+            
+            <tag> leetcode </tag>
+            
+            <tag> 力扣困难 </tag>
+            
+            <tag> 哈希表 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>允许重复</title>
+      <link href="/2021/09/15/%E5%85%81%E8%AE%B8%E9%87%8D%E5%A4%8D/"/>
+      <url>/2021/09/15/%E5%85%81%E8%AE%B8%E9%87%8D%E5%A4%8D/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>524.通过删除字母匹配到字典里最长单词</title>
+      <link href="/2021/09/14/524-%E9%80%9A%E8%BF%87%E5%88%A0%E9%99%A4%E5%AD%97%E6%AF%8D%E5%8C%B9%E9%85%8D%E5%88%B0%E5%AD%97%E5%85%B8%E9%87%8C%E6%9C%80%E9%95%BF%E5%8D%95%E8%AF%8D/"/>
+      <url>/2021/09/14/524-%E9%80%9A%E8%BF%87%E5%88%A0%E9%99%A4%E5%AD%97%E6%AF%8D%E5%8C%B9%E9%85%8D%E5%88%B0%E5%AD%97%E5%85%B8%E9%87%8C%E6%9C%80%E9%95%BF%E5%8D%95%E8%AF%8D/</url>
+      
+        <content type="html"><![CDATA[<h1 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h1><p>给你一个字符串 <code>s</code> 和一个字符串数组 <code>dictionary</code> 作为字典，找出并返回字典中最长的字符串，该字符串可以通过删除 <code>s</code> 中的某些字符得到。</p><p>如果答案不止一个，返回长度最长且字典序最小的字符串。如果答案不存在，则返回空字符串。</p><p><strong>示例 1：</strong></p><p><strong>输入：</strong>s = “abpcplea”, dictionary = [“ale”,”apple”,”monkey”,”plea”]<br><strong>输出：</strong>“apple”</p><p><strong>示例 2：</strong></p><p><strong>输入：</strong>s = “abpcplea”, dictionary = [“a”,”b”,”c”]<br><strong>输出：</strong>“a”</p><p><strong>提示：</strong></p><ul><li><code>1 &lt;= s.length &lt;= 1000</code></li><li><code>1 &lt;= dictionary.length &lt;= 1000</code></li><li><code>1 &lt;= dictionary[i].length &lt;= 1000</code></li><li><code>s</code> 和 <code>dictionary[i]</code> 仅由小写英文字母组成<h1 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h1>暴力求解。<br>对于dictionary~i~，按照顺序与s进行比较，看看dictionary~i~在s中是否能够按顺序都找到。如果能找到，就比较长度，长度相等则比较字典序。<h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">string <span class="title">findLongestWord</span><span class="params">(string s, vector&lt;string&gt;&amp; dictionary)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> res_id = <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;dictionary.<span class="built_in">size</span>();++i)&#123;</span><br><span class="line">            <span class="keyword">if</span>(dictionary[i].<span class="built_in">length</span>()&gt;s.<span class="built_in">length</span>()) <span class="keyword">continue</span>;</span><br><span class="line">            <span class="keyword">int</span> j=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> k=<span class="number">0</span>;k&lt;s.<span class="built_in">size</span>();++k)&#123;</span><br><span class="line">                <span class="keyword">if</span>(s[k]==dictionary[i][j]) j++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(j!=dictionary[i].<span class="built_in">length</span>()) <span class="keyword">continue</span>;</span><br><span class="line">            <span class="keyword">if</span>(res_id==<span class="number">-1</span>||</span><br><span class="line">            dictionary[i].<span class="built_in">length</span>()&gt;dictionary[res_id].<span class="built_in">length</span>()||</span><br><span class="line">            (dictionary[i].<span class="built_in">length</span>()==dictionary[res_id].<span class="built_in">length</span>()&amp;&amp;dictionary[i]&lt;dictionary[res_id]))&#123;</span><br><span class="line">                res_id = i;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(res_id==<span class="number">-1</span>) <span class="keyword">return</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> dictionary[res_id];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> 算法 </category>
+          
+          <category> 字符串 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 算法 </tag>
+            
+            <tag> leetcode </tag>
+            
+            <tag> 字符串 </tag>
+            
+            <tag> 力扣中等 </tag>
+            
+            <tag> 暴力 </tag>
+            
+            <tag> 字符串匹配 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>447.回旋镖的数量</title>
       <link href="/2021/09/13/447-%E5%9B%9E%E6%97%8B%E9%95%96%E7%9A%84%E6%95%B0%E9%87%8F/"/>
       <url>/2021/09/13/447-%E5%9B%9E%E6%97%8B%E9%95%96%E7%9A%84%E6%95%B0%E9%87%8F/</url>
@@ -457,43 +573,6 @@
             <tag> 动态规划 </tag>
             
             <tag> DP </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>1986.完成任务的最少工作时间段</title>
-      <link href="/2021/09/04/1986-%E5%AE%8C%E6%88%90%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%9C%80%E5%B0%91%E5%B7%A5%E4%BD%9C%E6%97%B6%E9%97%B4%E6%AE%B5/"/>
-      <url>/2021/09/04/1986-%E5%AE%8C%E6%88%90%E4%BB%BB%E5%8A%A1%E7%9A%84%E6%9C%80%E5%B0%91%E5%B7%A5%E4%BD%9C%E6%97%B6%E9%97%B4%E6%AE%B5/</url>
-      
-        <content type="html"><![CDATA[<h1 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h1><p>你被安排了 <code>n</code> 个任务。任务需要花费的时间用长度为 <code>n</code> 的整数数组 <code>tasks</code> 表示，第 <code>i</code> 个任务需要花费 <code>tasks[i]</code> 小时完成。一个 <strong>工作时间段</strong> 中，你可以 <strong>至多</strong> 连续工作 <code>sessionTime</code> 个小时，然后休息一会儿。</p><p>你需要按照如下条件完成给定任务：</p><ul><li>  如果你在某一个时间段开始一个任务，你需要在 <strong>同一个</strong> 时间段完成它。</li><li>  完成一个任务后，你可以 <strong>立马</strong> 开始一个新的任务。</li><li>  你可以按 <strong>任意顺序</strong> 完成任务。</li></ul><p>给你 <code>tasks</code> 和 <code>sessionTime</code> ，请你按照上述要求，返回完成所有任务所需要的 <strong>最少</strong> 数目的 <strong>工作时间段</strong> 。</p><p>测试数据保证 <code>sessionTime</code> <strong>大于等于</strong> <code>tasks[i]</code> 中的 <strong>最大值</strong> 。</p><p><strong>示例 1：</strong></p><p><strong>输入：</strong> tasks = [1,2,3], sessionTime = 3<br><strong>输出：</strong> 2<br><strong>解释：</strong> 你可以在两个工作时间段内完成所有任务。</p><ul><li>第一个工作时间段：完成第一和第二个任务，花费 1 + 2 = 3 小时。</li><li>第二个工作时间段：完成第三个任务，花费 3 小时。</li></ul><p><strong>示例 2：</strong></p><p><strong>输入：</strong> tasks = [3,1,3,1,1], sessionTime = 8<br><strong>输出：</strong> 2<br><strong>解释：</strong> 你可以在两个工作时间段内完成所有任务。</p><ul><li>第一个工作时间段：完成除了最后一个任务以外的所有任务，花费 3 + 1 + 3 + 1 = 8 小时。</li><li>第二个工作时间段，完成最后一个任务，花费 1 小时。</li></ul><p><strong>示例 3：</strong></p><p><strong>输入：</strong> tasks = [1,2,3,4,5], sessionTime = 15<br><strong>输出：</strong> 1<br><strong>解释：</strong> 你可以在一个工作时间段以内完成所有任务。</p><p><strong>提示：</strong></p><ul><li>  <code>n == tasks.length</code></li><li>  <code>1 &lt;= n &lt;= 14</code></li><li>  <code>1 &lt;= tasks[i] &lt;= 10</code></li><li>  <code>max(tasks[i]) &lt;= sessionTime &lt;= 15</code></li></ul><h1 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h1><p>其实没有思路，看别人的题解知道了状压DP这个东西，于是照抄了代码，学习了一个新的知识点</p><ul><li><p>首先初始化dp，该类题一般最大值小于20，因此dp初始值设为20。dp的数量设置为所有可能出现的情况之和：2^(n+1)^-1。</p></li><li><p>dp初始值更新：</p><ul><li>将第i个状态转化为二进制数字，二进制数字的每一位代表该位对应的task是否添加。比如10100表示task[2]和task[4]添加进来。</li><li>将每个二进制数字对应的task之和求出，如果小于sessionTime，则将该位置的dp设为1。表示该状态下可以安排进同一个sessionTime中。</li></ul></li><li><p>dp全局更新：</p><ul><li><p>从小到大遍历1~2^(n+1)^-1个状态，对于每个状态i，同时遍历其子集：</p>  <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;n;i++)&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> j=i;j&gt;<span class="number">0</span>;j=(j<span class="number">-1</span>)&amp;i)&#123;</span><br><span class="line">    ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li><li><p>对于每个状态i，取该状态dp[i]和其子集状态dp[j]+dp[i^j]的最小值。</p></li></ul></li></ul><h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">minSessions</span><span class="params">(vector&lt;<span class="keyword">int</span>&gt;&amp; tasks, <span class="keyword">int</span> sessionTime)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//状压DP</span></span><br><span class="line">        <span class="keyword">int</span> n = <span class="number">1</span>&lt;&lt;(tasks.<span class="built_in">size</span>());</span><br><span class="line">        <span class="function">vector&lt;<span class="keyword">int</span>&gt; <span class="title">dp</span><span class="params">(n,<span class="number">20</span>)</span></span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;n;i++)&#123;</span><br><span class="line">            <span class="keyword">int</span> spend = <span class="number">0</span>, cur = i;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> idx=<span class="number">0</span>;cur&gt;&gt;idx&gt;<span class="number">0</span>;idx++)&#123;</span><br><span class="line">                <span class="keyword">if</span>(cur&amp;(<span class="number">1</span>&lt;&lt;idx)) spend+= tasks[idx];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(spend&lt;=sessionTime)dp[i] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;n;i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(dp[i]==<span class="number">1</span>) <span class="keyword">continue</span>;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j=i;j&gt;<span class="number">0</span>;j=(j<span class="number">-1</span>)&amp;i)&#123;</span><br><span class="line">                dp[i] = <span class="built_in">min</span>(dp[i],dp[j]+dp[i^j]);</span><br><span class="line">                <span class="keyword">if</span>(dp[i]==<span class="number">1</span>) <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dp[n<span class="number">-1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>]]></content>
-      
-      
-      <categories>
-          
-          <category> 算法 </category>
-          
-          <category> 动态规划 </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> 算法 </tag>
-            
-            <tag> leetcode </tag>
-            
-            <tag> 数组 </tag>
-            
-            <tag> DP </tag>
-            
-            <tag> 状压DP </tag>
-            
-            <tag> 新知识点 </tag>
             
         </tags>
       
